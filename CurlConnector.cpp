@@ -1,3 +1,5 @@
+#include "CurlConnector.h"
+
 size_t CurlConnector::curlToString(void *ptr, size_t size, size_t nmemb, void *data) {
 	string *str = (string *)data;
 	char *sptr = (char *) ptr;
