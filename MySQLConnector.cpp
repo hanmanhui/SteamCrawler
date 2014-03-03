@@ -2,12 +2,7 @@
 #include <stdlib.h>
 #include <iostream>
 
-/*
-  Include directly the different
-  headers from cppconn/ and mysql_driver.h + mysql_util.h
-  (and mysql_connection.h). This will reduce your build time!
-*/
-#include "mysql_connection.h"
+#include <mysql_connection.h>
 
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>
@@ -18,8 +13,7 @@ using namespace std;
 
 int main(void) {
     cout << endl;
-    cout << "Running 'SELECT 'Hello World!' »
-       AS _message'..." << endl;
+    cout << "Running 'SELECT 'Hello World!' » AS _message'..." << endl;
     
     try {
       sql::Driver *driver;
@@ -29,7 +23,7 @@ int main(void) {
     
       /* Create a connection */
       driver = get_driver_instance();
-      con = driver->connect("tcp://127.0.0.1:3306", "root", "root");
+      con = driver->connect("147.46.174.83", "root", "manhwi");
       /* Connect to the MySQL test database */
       con->setSchema("test");
     
@@ -49,11 +43,10 @@ int main(void) {
     
     } catch (sql::SQLException &e) {
       cout << "# ERR: SQLException in " << __FILE__;
-      cout << "(" << __FUNCTION__ << ") on line " »
-         << __LINE__ << endl;
-      cout << "# ERR: " << e.what();
-      cout << " (MySQL error code: " << e.getErrorCode();
-      cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+	cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+	cout << " # ERR : " << e.what();
+	cout << " (MySQL Error code: " << e.getErrorCode();
+	cout << ", SQLState: " << e.getSQLState() << " )" << endl;
     }
     
     cout << endl;

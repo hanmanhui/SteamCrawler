@@ -15,8 +15,6 @@ class CurlConnector {
     private :
     	CURL *curl;
     	CURLcode res;
-
-        size_t curlToString(void *ptr, size_t size, size_t nmemb, void *data);
 };
 
 #endif /* CURLCONNECTOR_H */
