@@ -4,7 +4,7 @@ CC = g++
 CFLAGS = -c -Wall
 LDFLAGS = 
 
-SRC = $(PROJECT).cpp
+SRC = $(PROJECT).cpp CurlConnector.cpp MySQLConnector.cpp SteamUserCrawler.cpp
 OBJ = $(SRC:.cpp=.o)
 
 # Gumbo Parser
@@ -12,7 +12,12 @@ CFLAGS += $(shell pkg-config --cflags gumbo)
 LDFLAGS += $(shell pkg-config --libs gumbo)
 
 # libCurl
-LDFLAGS += -lcurl
+CFLAGS += $(shell pkg-config --cflags libcurl)
+LDFLAGS += $(shell pkg-config --cflags libcurl)
+
+# Mysql Cpp Connector
+CFLAGS += -I/usr/local/include
+LDFLAGS += -I/usr/local/include/cppconn -lmysqlcppconn
 
 all : $(SRC) $(PROJECT)
 
