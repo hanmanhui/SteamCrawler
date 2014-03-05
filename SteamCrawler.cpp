@@ -38,29 +38,29 @@ int main(int argc, char** argv) {
 	stmt->execute(q.c_str());
 
 	q = "CREATE TABLE IF NOT EXISTS game(id INT PRIMARY KEY AUTO_INCREMENT NOT NULL, ";
-	q += "url VARCHAR(255) NOT NULL, ";
+	q += "url VARCHAR(255), ";
 	q += "title VARCHAR(255) NOT NULL, ";
 	q += "release_date VARCHAR(255), ";
 	q += "metascore INT, ";
 	q += "genre VARCHAR(255), ";
 	q += "developer VARCHAR(255), ";
 	q += "publisher VARCHAR(255), ";
-	q += "UNIQUE(url));";
+	q += "UNIQUE(title));";
     
 	stmt->execute(q.c_str());
 
 	q = "CREATE TABLE IF NOT EXISTS user_game (user_id INT NOT NULL, ";
 	q += "game_id INT NOT NULL, ";
 	q += "played FLOAT, ";
-	q += "FOREIGN KEY (user_id) REFERENCES user(id), ";
-	q += "FOREIGN KEY (game_id) REFERENCES game(id));";
+	q += "FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE, ";
+	q += "FOREIGN KEY (game_id) REFERENCES game(id) ON DELETE CASCADE ON UPDATE CASCADE);";
 
 	stmt->execute(q.c_str());
 
 	q = "CREATE TABLE IF NOT EXISTS friends (user_id INT NOT NULL, ";
 	q += "friend_id INT NOT NULL, ";
-	q += "FOREIGN KEY (user_id) REFERENCES user(id), ";
-	q += "FOREIGN KEY (friend_id) REFERENCES user(id));";
+	q += "FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE, ";
+	q += "FOREIGN KEY (friend_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE);";
 
 	stmt->execute(q.c_str());
 
