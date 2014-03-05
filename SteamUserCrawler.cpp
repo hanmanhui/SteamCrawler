@@ -17,6 +17,7 @@ bool SteamUserCrawler::run() {
     while(!userURL.empty()) {
         string url = userURL.front();
         userURL.pop();
+	userURLRef.erase(url);
         
         string page = curl->getPage(url);
         
@@ -138,10 +139,16 @@ bool SteamUserCrawler::run() {
                             q += "'" + friendURL + "');";
                             stmt->execute(q.c_str());
                             
-                            userURL.push(friendURL);
+			    if(userURLRef.find(friendURL) == userURLRef.end()) {
+	                            userURL.push(friendURL);
+				    userURLRef.insert(friendURL);
+			    }
                         } catch(sql::SQLException &e) {
                             if(userURL.size() <= MAX_QUEUE_SIZE) {
-                                userURL.push(friendURL);
+				if(userURLRef.find(friendURL) == userURLRef.end()) {
+	                                userURL.push(friendURL);
+					userURLRef.insert(friendURL);
+				}
                             }
                         }
                         

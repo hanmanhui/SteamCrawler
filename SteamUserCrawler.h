@@ -15,6 +15,7 @@ using namespace std;
 
 // boost
 #include <boost/algorithm/string.hpp>
+#include <boost/unordered_set.hpp>
 
 using namespace boost::algorithm;
 
@@ -42,8 +43,9 @@ class SteamUserCrawler {
     
         MySQLConnector *dbConn;
         CurlConnector *curl;
-        
-        queue<string> userURL;
+
+	queue<string> userURL;
+	boost::unordered_set<string> userURLRef;
         
         GumboVector* GetGumboChildren(GumboNode *node, GumboTag tag);
         GumboVector* GetGumboChildren(GumboNode *node, GumboTag tag, const char* attribute, const char* value);
