@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #include <mysql_connection.h>
 
@@ -10,6 +11,7 @@
 #include <cppconn/exception.h>
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
+#include <cppconn/prepared_statement.h>
 
 using namespace std;
 
@@ -35,17 +37,16 @@ class MySQLConnector {
             this->db = db;
         }
         
-        ~MySQLConnector() {
-            delete driver;
-            delete con;
-        }
-        
         bool connect() {
             try {
-                string iport = ip + ":" + port;
-                /* Create a connection */
+		stringstream ss;
+		ss << ip;
+		ss << ":";
+		ss << port;
+
+		/* Create a connection */
                 driver = get_driver_instance();
-                con = driver->connect(iport.c_str(), id.c_str(), pwd.c_str());
+                con = driver->connect(ss.str().c_str(), id.c_str(), pwd.c_str());
                 
                 con->setSchema(db.c_str());
             } catch (sql::SQLException &e) {

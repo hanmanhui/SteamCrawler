@@ -9,8 +9,6 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <vector>
-#include <stack>
 #include <queue>
 
 using namespace std;
@@ -23,7 +21,7 @@ using namespace boost::algorithm;
 #include "MySQLConnector.h"
 #include "CurlConnector.h"
 
-class SteamUserCrawler() {
+class SteamUserCrawler {
     public :
         SteamUserCrawler() {
             dbConn = new MySQLConnector();
@@ -40,7 +38,7 @@ class SteamUserCrawler() {
         
         bool run();
     private :
-        const int MAX_QUEUE_SIZE = 50;
+        static const unsigned int MAX_QUEUE_SIZE = 50;
     
         MySQLConnector *dbConn;
         CurlConnector *curl;

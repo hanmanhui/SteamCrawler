@@ -1,4 +1,6 @@
 #include <iostream>
+#include <string>
+#include <cstdlib>
 
 using namespace std;
 
@@ -6,59 +8,69 @@ using namespace std;
 #include "SteamUserCrawler.h"
 
 int main(int argc, char** argv) {
-    if(argc != 5) {
-        cout << "Usage : SteamCrawler MySQL_IP Port MySQL_ID MySQL_PassWD MySQL_DB" << endl;
-    }
+	if(argc != 6) {
+		cout << "Usage : SteamCrawler MySQL_IP Port MySQL_ID MySQL_PassWD MySQL_DB" << endl;
+		return -1;
+	}
     
-    string ip = argv[1];
-    int port = argv[2];
-    string id = argv[3];
-    string pwd = argv[4];
-    string db = argv[5];
+	string ip = argv[1];
+	int port = atoi(argv[2]);
+	string id = argv[3];
+	string pwd = argv[4];
+	string db = argv[5];
 	
 	// Prepare DB
 	MySQLConnector conn(ip, port, id, pwd, db);
 	
-	conn->connect();
+	conn.connect();
 	
 	sql::Statement *stmt;
 
-    stmt = conn->con->createStatement();
-    stmt->execute("CREATE TABLE IF NOT EXISTS user(id INT PRIMARY KEY AUTO_INCREMENT NOT NULL, "
-     + "url VARCHAR(255) NOT NULL, " 
-     + "name VARCHAR(255), "
-     + "games INT, "
-     + "steamlv INT, "
-     + "UNIQUE(url));"
-    );
-    stmt->execute("CREATE TABLE IF NOT EXISTS game(id INT PRIMARY KEY AUTO_INCREMENT NOT NULL, "
-     + "url VARCHAR(255) NOT NULL, "
-     + "title VARCHAR(255) NOT NULL, "
-     + "release_date VARCHAR(255), "
-     + "metascore INT, "
-     + "genre VARCHAR(255), "
-     + "developer VARCHAR(255), "
-     + "publisher VARCHAR(255), "
-     + "UNIQUE(url));"
-    );
-    stmt->execute("CREATE TABLE IF NOT EXISTS user_game (user_id INT NOT NULL, "
-     + "game_id INT NOT NULL, "
-     + "played FLOAT, "
-     + "FOREIGN KEY (user_id) REFERENCES user(id), "
-     + "FOREIGN KEY (game_id) REFERENCES game(id));"
-    );
-    stmt->execute("CREATE TABLE IF NOT EXISTS friends (user_id INT NOT NULL, "
-     + "friend_id INT NOT NULL, "
-     + "FOREIGN KEY (user_id) REFERENCES user(id), "
-     + "FOREIGN KEY (friend_id) REFERENCES user(id));"
-    );
-    delete stmt;
+	stmt = conn.con->createStatement();
+
+	string q = "CREATE TABLE IF NOT EXISTS user(id INT PRIMARY KEY AUTO_INCREMENT NOT NULL, ";
+	q += "url VARCHAR(255) NOT NULL, ";
+	q += "name VARCHAR(255), ";
+	q += "games INT, ";
+	q += "steamlv INT, ";
+	q += "UNIQUE(url));";
+
+	stmt->execute(q.c_str());
+
+	q = "CREATE TABLE IF NOT EXISTS game(id INT PRIMARY KEY AUTO_INCREMENT NOT NULL, ";
+	q += "url VARCHAR(255) NOT NULL, ";
+	q += "title VARCHAR(255) NOT NULL, ";
+	q += "release_date VARCHAR(255), ";
+	q += "metascore INT, ";
+	q += "genre VARCHAR(255), ";
+	q += "developer VARCHAR(255), ";
+	q += "publisher VARCHAR(255), ";
+	q += "UNIQUE(url));";
     
-    // Init Crawler
-    SteamUserCrawler userCrawler(ip, port, id, pwd, db);
+	stmt->execute(q.c_str());
+
+	q = "CREATE TABLE IF NOT EXISTS user_game (user_id INT NOT NULL, ";
+	q += "game_id INT NOT NULL, ";
+	q += "played FLOAT, ";
+	q += "FOREIGN KEY (user_id) REFERENCES user(id), ";
+	q += "FOREIGN KEY (game_id) REFERENCES game(id));";
+
+	stmt->execute(q.c_str());
+
+	q = "CREATE TABLE IF NOT EXISTS friends (user_id INT NOT NULL, ";
+	q += "friend_id INT NOT NULL, ";
+	q += "FOREIGN KEY (user_id) REFERENCES user(id), ";
+	q += "FOREIGN KEY (friend_id) REFERENCES user(id));";
+
+	stmt->execute(q.c_str());
+
+	delete stmt;
+
+	// Init Crawler
+	SteamUserCrawler userCrawler("http://steamcommunity.com/profiles/76561198117215365", ip, port, id, pwd, db);
     
-    // Run Crawler
-    userCrawler->rusn();
+	// Run Crawler
+	userCrawler.run();
 	
 	return 0;
 }
