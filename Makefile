@@ -4,7 +4,7 @@ CC = g++
 CFLAGS = -c -Wall
 LDFLAGS = 
 
-SRC = $(PROJECT).cpp CurlConnector.cpp MySQLConnector.h SteamUserCrawler.cpp
+SRC = $(PROJECT).cpp CurlConnector.cpp MySQLConnector.cpp SteamUserCrawler.cpp
 OBJ = $(SRC:.cpp=.o)
 
 # Gumbo Parser
