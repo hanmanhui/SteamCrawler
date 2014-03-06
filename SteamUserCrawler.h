@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <string.h>
 
+// for time logging
+#include <sys/time.h>
+#include <unistd.h>
+
 #include <gumbo.h>
 
 #include <iostream>
@@ -44,11 +48,11 @@ class SteamUserCrawler {
         MySQLConnector *dbConn;
         CurlConnector *curl;
 
-	queue<string> userURL;
-	boost::unordered_set<string> userURLRef;
+        queue<string> userURL;
+        boost::unordered_set<string> userURLRef;
         
-        GumboVector* GetGumboChildren(GumboNode *node, GumboTag tag);
-        GumboVector* GetGumboChildren(GumboNode *node, GumboTag tag, const char* attribute, const char* value);
+        struct timeval start, end;
+        long calTime(struct timeval start, struct timeval end);
 };
 
 #endif /* STEAMUSERCRAWLER_H */

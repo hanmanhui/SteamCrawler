@@ -33,13 +33,15 @@ bool MySQLConnector::connect() {
 
 		con->setSchema(db.c_str());
 	} catch (sql::SQLException &e) {
-		cout << "# ERR: SQLException in " << __FILE__;
-		cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
-		cout << " # ERR : " << e.what();
-		cout << " (MySQL Error code: " << e.getErrorCode();
-		cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+	    stringstream ss;
+		ss << "# ERR: SQLException in " << __FILE__;
+		ss << "(" << __FUNCTION__ << ") on line " << __LINE__ << '\n';
+		ss << " # ERR : " << e.what();
+		ss << " (MySQL Error code: " << e.getErrorCode();
+		ss << ", SQLState: " << e.getSQLState() << " )\n";
 
-                return false;
+        printf("%s", ss.str().c_str());
+        return false;
 	}
             
 	return true;

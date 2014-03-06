@@ -66,8 +66,11 @@ int main(int argc, char** argv) {
 
 	delete stmt;
 
+    string seedURL;
+    printf("Enter the Seed URL for Crawling\n");
+    cin >> seedURL;
 	// Init Crawler
-	SteamUserCrawler userCrawler("http://steamcommunity.com/profiles/76561198117215365", ip, port, id, pwd, db);
+	SteamUserCrawler userCrawler(seedURL, ip, port, id, pwd, db);
     
 	// Run Crawler
 	userCrawler.run();
