@@ -19,7 +19,6 @@ using namespace std;
 
 // boost
 #include <boost/algorithm/string.hpp>
-#include <boost/unordered_set.hpp>
 
 using namespace boost::algorithm;
 
@@ -27,32 +26,28 @@ using namespace boost::algorithm;
 #include "CurlConnector.h"
 
 class SteamUserCrawler {
-    public :
-        SteamUserCrawler() {
-            dbConn = new MySQLConnector();
-            curl = new CurlConnector();
-            
-            userURL.push("http://steamcommunity.com/profiles/76561198047494048");
-        };
-        SteamUserCrawler(string seedURL, string ip, int port, string id, string pwd, string db) {
-            dbConn = new MySQLConnector(ip, port, id, pwd, db);
-            curl = new CurlConnector();
-            
-            userURL.push(seedURL);
-        };
-        
-        bool run();
-    private :
-        static const unsigned int MAX_QUEUE_SIZE = 50;
-    
-        MySQLConnector *dbConn;
-        CurlConnector *curl;
+	public :
+		SteamUserCrawler() {
+			dbConn = new MySQLConnector();
+			curl = new CurlConnector();
+			
+			this->seedURL = "http://steamcommunity.com/profiles/76561198047494048";
+		};
+		SteamUserCrawler(string seedURL, string ip, int port, string id, string pwd, string db) {
+			dbConn = new MySQLConnector(ip, port, id, pwd, db);
+			curl = new CurlConnector();
+			this->seedURL = seedURL;
+		};
+		
+		bool run();
+	private :
+		MySQLConnector *dbConn;
+		CurlConnector *curl;
+		
+		struct timeval start, end;
+		long calTime();
 
-        queue<string> userURL;
-        boost::unordered_set<string> userURLRef;
-        
-        struct timeval start, end;
-        long calTime();
+		string seedURL;
 };
 
 #endif /* STEAMUSERCRAWLER_H */
