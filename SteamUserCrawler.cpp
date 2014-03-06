@@ -14,7 +14,7 @@ bool SteamUserCrawler::run() {
     // Connect To DB
     dbConn->connect();
     gettimeofday(&end, NULL);
-    printf("DB Connected (time consumed : %lms)\n", this->calTime());
+    printf("DB Connected (time consumed : %ldms)\n", this->calTime());
 
     sql::Statement *stmt;
     sql::ResultSet *res;
@@ -27,19 +27,19 @@ bool SteamUserCrawler::run() {
     int userLevel;
     
     while(!userURL.empty()) {
-        printf("Current URL Queue Size : %d\n", userURL.size());
+        printf("Current URL Queue Size : %ld\n", userURL.size());
         
         gettimeofday(&start, NULL);
         string url = userURL.front();
         userURL.pop();
         userURLRef.erase(url);
         gettimeofday(&end, NULL);
-        printf("Getting User URL from Queue Done (time consumed : %lms)\n", this->calTime());
+        printf("Getting User URL from Queue Done (time consumed : %ldms)\n", this->calTime());
         
         gettimeofday(&start, NULL);
         string page = curl->getPage(url);
         gettimeofday(&end, NULL);
-        printf("Getting User Profile Page Done (time consumed : %lms)\n", this->calTime());
+        printf("Getting User Profile Page Done (time consumed : %ldms)\n", this->calTime());
         
         userName = "";
         userLevel = -1;
@@ -49,7 +49,7 @@ bool SteamUserCrawler::run() {
             gettimeofday(&start, NULL);
             GumboOutput *output = gumbo_parse(page.c_str());
             gettimeofday(&end, NULL);
-            printf("User Profile Page Parsing Done (time consumed : %lms)\n", this->calTime());
+            printf("User Profile Page Parsing Done (time consumed : %ldms)\n", this->calTime());
             
             queue<GumboNode *> nodes;
             nodes.push(output->root);
@@ -116,7 +116,7 @@ bool SteamUserCrawler::run() {
             }
             gumbo_destroy_output(&kGumboDefaultOptions, output);
             gettimeofday(&end, NULL);
-            printf("Searching User Profile Information Done (time consumed : %lms)\n", this->calTime());
+            printf("Searching User Profile Information Done (time consumed : %ldms)\n", this->calTime());
         }
 
         gettimeofday(&start, NULL);
@@ -134,20 +134,20 @@ bool SteamUserCrawler::run() {
         }
         pstmt->execute();
         gettimeofday(&end, NULL);
-        printf("Saving User Profile to Database Done (time consumed : %lms)\n", this->calTime());
+        printf("Saving User Profile to Database Done (time consumed : %ldms)\n", this->calTime());
 
         string friendListUrl = url + "/friends";
         
         gettimeofday(&start, NULL);
         page = curl->getPage(friendListUrl);
         gettimeofday(&end, NULL);
-        printf("Getting User's Friends Page Done (time consumed : %lms)\n", this->calTime());
+        printf("Getting User's Friends Page Done (time consumed : %ldms)\n", this->calTime());
         
         if(page != "") {
             gettimeofday(&start, NULL);
             GumboOutput *output = gumbo_parse(page.c_str());
             gettimeofday(&end, NULL);
-            printf("Parsing User's Friends Page Done (time consumed : %lms)\n", this->calTime());
+            printf("Parsing User's Friends Page Done (time consumed : %ldms)\n", this->calTime());
             
             if(output->root->type == GUMBO_NODE_ELEMENT) {
                 queue<GumboNode *> nodes;
@@ -189,7 +189,7 @@ bool SteamUserCrawler::run() {
                         }
                         
                         try {
-                            string q = "INSERT INTO friends(user_id, friend_id) VALUES(";
+                            string q = "INSERT IGNORE INTO friends(user_id, friend_id) VALUES(";
                             q += "(SELECT id ";
                             q += "FROM user ";
                             q += "where url = '" + url + "'), ";
@@ -210,7 +210,25 @@ bool SteamUserCrawler::run() {
                     }
                 }
                 gettimeofday(&end, NULL);
-                printf("Getting & Saving User's Friends Information Done (time consumed : %lms)\n", this->calTime());
+                printf("Getting & Saving User's Friends Information Done (time consumed : %ldms)\n", this->calTime());
+
+		stmt = dbConn->con->createStatement();
+
+		gettimeofday(&start, NULL);
+		string q = "UPDATE user SET friends=(";
+		q += "(SELECT count(DISTINCT friend_id) ";
+		q += "FROM friends WHERE user_id=";
+		q += "(SELECT id FROM (SELECT * FROM user) AS tUser ";
+		q += "WHERE url='";
+		q += url;
+		q += "'))) WHERE url='";
+		q += url;
+		q += "';";
+		stmt->execute(q.c_str());
+		printf("Saving User's Friends Count Done (time consumed : %ldms)\n", this->calTime());
+		gettimeofday(&end, NULL);
+
+		delete stmt;
             }
             
             gumbo_destroy_output(&kGumboDefaultOptions, output);

@@ -32,6 +32,7 @@ int main(int argc, char** argv) {
 	q += "url VARCHAR(255) NOT NULL, ";
 	q += "name VARCHAR(255), ";
 	q += "games INT, ";
+	q += "friends INT, ";
 	q += "steamlv INT, ";
 	q += "UNIQUE(url));";
 
@@ -52,6 +53,7 @@ int main(int argc, char** argv) {
 	q = "CREATE TABLE IF NOT EXISTS user_game (user_id INT NOT NULL, ";
 	q += "game_id INT NOT NULL, ";
 	q += "played FLOAT, ";
+	q += "PRIMARY KEY (user_id, game_id), ";
 	q += "FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE, ";
 	q += "FOREIGN KEY (game_id) REFERENCES game(id) ON DELETE CASCADE ON UPDATE CASCADE);";
 
@@ -59,6 +61,7 @@ int main(int argc, char** argv) {
 
 	q = "CREATE TABLE IF NOT EXISTS friends (user_id INT NOT NULL, ";
 	q += "friend_id INT NOT NULL, ";
+	q += "PRIMARY KEY (user_id, friend_id), ";
 	q += "FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE, ";
 	q += "FOREIGN KEY (friend_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE);";
 

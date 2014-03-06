@@ -1,6 +1,8 @@
 #ifndef MYSQLCONNECTOR_H
 #define MYSQLCONNECTOR_H
 
+#include <stdio.h>
+
 #include <iostream>
 #include <string>
 #include <sstream>

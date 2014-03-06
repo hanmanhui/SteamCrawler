@@ -52,7 +52,7 @@ class SteamUserCrawler {
         boost::unordered_set<string> userURLRef;
         
         struct timeval start, end;
-        long calTime(struct timeval start, struct timeval end);
+        long calTime();
 };
 
 #endif /* STEAMUSERCRAWLER_H */
