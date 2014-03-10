@@ -26,8 +26,20 @@ bool SteamUserCrawler::run() {
 	string userName;
 	int userLevel;
 
-	string url = this->seedURL;
-	
+    string url = this->seedURL;
+    if(url == "") {
+	    gettimeofday(&start, NULL);
+		stmt = dbConn->con->createStatement();
+		res = stmt->executeQuery("SELECT url FROM user WHERE name IS NULL ORDER BY RAND() LIMIT 1;");
+		gettimeofday(&end, NULL);
+		if(res->next()) {
+			url = res->getString(1);
+			printf("Getting Random Seed URL from DB Done (time consumed : %ld)\n", this->calTime());
+		}
+		delete stmt;
+		delete res;
+    }
+    
 	while(url != "") {
 		gettimeofday(&start, NULL);
 		string page = curl->getPage(url);
@@ -43,6 +55,7 @@ bool SteamUserCrawler::run() {
 			GumboOutput *output = gumbo_parse(page.c_str());
 			gettimeofday(&end, NULL);
 			printf("User Profile Page Parsing Done (time consumed : %ldms)\n", this->calTime());
+			printf("Current URL : [%s]\n", url.c_str());
 			
 			queue<GumboNode *> nodes;
 			nodes.push(output->root);
@@ -191,9 +204,9 @@ bool SteamUserCrawler::run() {
 				gettimeofday(&end, NULL);
 				printf("Getting & Saving User's Friends Information Done (time consumed : %ldms)\n", this->calTime());
 
-				stmt = dbConn->con->createStatement();
-
 				gettimeofday(&start, NULL);
+				stmt = dbConn->con->createStatement();
+				
 				string q = "UPDATE user SET friends=(";
 				q += "(SELECT count(DISTINCT friend_id) ";
 				q += "FROM friends WHERE user_id=";
@@ -211,6 +224,150 @@ bool SteamUserCrawler::run() {
 			}
 			
 			gumbo_destroy_output(&kGumboDefaultOptions, output);
+		}
+			
+		string userGameUrl = url + "/games?tab=all";
+		gettimeofday(&start, NULL);
+		page = curl->getPage(userGameUrl);
+		gettimeofday(&end, NULL);
+		printf("Getting User's Games Page Done (time consumed : %ldms)\n", this->calTime());
+		
+		if(page != "") {
+			gettimeofday(&start, NULL);
+			GumboOutput *output = gumbo_parse(page.c_str());
+			gettimeofday(&end, NULL);
+			printf("Parsing User's Games Page Done (time consumed : %ldms)\n", this->calTime());
+			
+			if(output->root->type == GUMBO_NODE_ELEMENT) {
+				queue<GumboNode *> nodes;
+				nodes.push(output->root);
+			
+				gettimeofday(&start, NULL);	
+				while(!nodes.empty()) {
+					GumboNode *node = nodes.front();
+					nodes.pop();
+					
+					if(node->type != GUMBO_NODE_ELEMENT) {
+						continue;
+					}
+					
+					GumboAttribute *attr;
+					if((node->v.element.tag == GUMBO_TAG_DIV) &&
+					(attr = gumbo_get_attribute(&node->v.element.attributes, "class")) &&
+					(strcmp(attr->value, "gameListRow") == 0) && 
+					(attr = gumbo_get_attribute(&node->v.element.attributes, "id"))) {
+						string gameID = attr->value;
+						string gameName = "";
+						float gamePlayed = -1;
+						
+						GumboVector *aChild = &node->v.element.children;
+						for(size_t i = 0; i < aChild->length; i++) {
+						    GumboNode *aNode = static_cast<GumboNode *>(aChild->data[i]);
+						    
+						    if((aNode->type == GUMBO_NODE_ELEMENT) &&
+						    (aNode->v.element.tag == GUMBO_TAG_DIV) &&
+						    (attr = gumbo_get_attribute(&node->v.element.attributes, "class")) &&
+						    (strcmp(attr->value, "gameListRowItem") == 0)) {
+						        GumboVector *bChild = &aNode->v.element.children;
+						        for(size_t j = 0; j < bChild->length; j++) {
+						            GumboNode *bNode = static_cast<GumboNode *>(bChild->data[j]);
+						            if((bNode->type == GUMBO_NODE_ELEMENT) &&
+						            (bNode->v.element.tag == GUMBO_TAG_DIV) &&
+						            (attr = gumbo_get_attribute(&node->v.element.attributes, "class")) &&
+						            (strcmp(attr->value, "gameListRowItemName")) {
+						                GumboVector *cChild = &bNode->v.element.children;
+						                for(size_t k = 0; k < cChild->length; k++) {
+						                    GumboNode *cNode = static_cast<GumboNode *>(cChild->data[k]);
+						                    if(cNode->type == GUMBO_NODE_TEXT) {
+						                        gameName = cNode->v.text.text;
+						                    }
+						                }
+						            } else if((bNode->type == GUMBO_NODE_ELEMENT) &&
+						            (bNode->v.element.tag == GUMBO_TAG_H5)) {
+						                GumboVector *cChild = &bNode->v.element.children;
+						                for(size_t k = 0; k < cChild->length; k++) {
+						                    GumboNode *cNode = static_cast<GumboNode *>(cChild->data[k]);
+						                    if(cNode->type == GUMBO_NODE_TEXT) {
+						                        stringstream ss;
+						                        ss << cNode->v.text.text;
+						                        ss >> gamePlayed;
+						                    }
+						                }
+						            }
+						        }
+						    }
+						}
+						
+						if(gameName != "") {
+				            stmt = dbConn->con->createStatement();
+				            string q = "INSERT IGNORE INTO game(title) VALUES('";
+				            
+				            std::ostringstream out;
+				            for(size_t i = 0; i < gameName.size(); i++) {
+				                switch(gameName[i]) {
+				                    case : "'" {
+				                        out << "\";
+				                        break;
+				                    }
+				                }
+				                
+				                out << gameName[i];
+				            }
+				            q += out.str();
+				            q += "');"
+				            stmt->execute(q.c_str());
+				            
+				            if(gamePlayed != -1) {
+				                q = "INSERT INTO user_game(user_id, game_id, played) VALUES(";
+				                q += "(SELECT id ";
+				                q += "FROM user ";
+				                q += "WHERE url = '" + url + "'), ";
+				                q += "(SELECT id ";
+				                q += "FROM game ";
+				                q += "WHERE title = '" + out.str() + "'), ";
+				                q += gamePlayed;
+				                q += ");"
+				            } else {
+				                q = "INSERT INTO user_game(user_id, game_id) VALUES(";
+				                q += "(SELECT id ";
+				                q += "FROM user ";
+				                q += "WHERE url = '" + url + "'), ";
+				                q += "(SELECT id ";
+				                q += "FROM game ";
+				                q += "WHERE title = '" + out.str() + "'));";
+				            }
+				            stmt->execute(q.c_str());
+						}
+						
+						delete stmt;
+					}
+				
+					GumboVector *children = &node->v.element.children;
+					for(size_t i = 0; i < children->length; i++) {
+						nodes.push(static_cast<GumboNode *>(children->data[i]));
+					}
+				}
+				gettimeofday(&end, NULL);
+				printf("Getting & Saving User's Games Information Done (time consumed : %ldms)\n", this->calTime());
+
+				gettimeofday(&start, NULL);
+				stmt = dbConn->con->createStatement();
+				
+				string q = "UPDATE user SET games=(";
+				q += "(SELECT count(DISTINCT game_id) ";
+				q += "FROM user_game WHERE user_id=";
+				q += "(SELECT id FROM (SELECT * FROM user) AS tUser ";
+				q += "WHERE url='";
+				q += url;
+				q += "'))) WHERE url='";
+				q += url;
+				q += "';";
+				stmt->execute(q.c_str());
+				printf("Saving User's Games Count Done (time consumed : %ldms)\n", this->calTime());
+				gettimeofday(&end, NULL);
+
+				delete stmt;
+			}
 		}
 
 		// Getting Next Seed Url

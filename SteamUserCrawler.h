@@ -31,7 +31,7 @@ class SteamUserCrawler {
 			dbConn = new MySQLConnector();
 			curl = new CurlConnector();
 			
-			this->seedURL = "http://steamcommunity.com/profiles/76561198047494048";
+			this->seedURL = "";
 		};
 		SteamUserCrawler(string seedURL, string ip, int port, string id, string pwd, string db) {
 			dbConn = new MySQLConnector(ip, port, id, pwd, db);
