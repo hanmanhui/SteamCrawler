@@ -31,7 +31,7 @@ bool SteamUserGameCrawler::run() {
 		gettimeofday(&end, NULL);
 		if(res->next()) {
 			url = res->getString(1);
-			printf("Getting Random Seed URL from DB Done (time consumed : %ld)\n", this->calTime());
+			printf("Getting Random Seed URL from DB Done (time consumed : %ldms)\n", this->calTime());
 		}
 		delete stmt;
 		delete res;
@@ -44,6 +44,7 @@ bool SteamUserGameCrawler::run() {
 		gettimeofday(&end, NULL);
 		printf("Getting User's Games Page Done (time consumed : %ldms)\n", this->calTime());
 		
+		gettimeofday(&start, NULL);
 		if(page != "") {
 			stringstream ss(page);
 			string line;
@@ -144,6 +145,8 @@ bool SteamUserGameCrawler::run() {
 				}
 			}
 		}
+		gettimeofday(&end, NULL);
+		printf("Saving User's Games Information Done (time consumed : %ldms)\n", this->calTime());
 
 		// Getting Next Seed Url
 		url = "";
@@ -153,7 +156,7 @@ bool SteamUserGameCrawler::run() {
 		gettimeofday(&end, NULL);
 		if(res->next()) {
 			url = res->getString(1);
-			printf("Getting Random URL from DB Done (time consumed : %ld)\n", this->calTime());
+			printf("Getting Random URL from DB Done (time consumed : %ldms)\n", this->calTime());
 		}
 		delete stmt;
 		delete res;
