@@ -13,3 +13,4 @@ Need To be Added
 
 - Crawl Game Informations
 - Multi-Threading
+- Make Parsing Job more efficiently
