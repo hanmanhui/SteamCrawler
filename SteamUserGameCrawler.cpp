@@ -45,6 +45,7 @@ bool SteamUserGameCrawler::run() {
 		printf("Getting User's Games Page Done (time consumed : %ldms)\n", this->calTime());
 		
 		if(page != "") {
+			printf("Current URL [%s]\n", url.c_str());
 			stringstream ss(page);
 			string line;
 			int gamesCount = -1;
@@ -140,6 +141,8 @@ bool SteamUserGameCrawler::run() {
 						stmt->execute(tSS.str().c_str());
 						delete stmt;
 					}
+					gettimeofday(&end, NULL);
+					printf("Saving User's Games Information Done (time consumed : %ldms)\n", this->calTime());
 					break;
 				}
 			}
