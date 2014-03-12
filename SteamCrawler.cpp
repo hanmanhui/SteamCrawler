@@ -6,6 +6,8 @@ using namespace std;
 
 #include "MySQLConnector.h"
 #include "SteamUserCrawler.h"
+#include "SteamFriendsCrawler.h"
+#include "SteamUserGameCrawler.h"
 
 int main(int argc, char** argv) {
 	if(argc != 6) {
@@ -28,7 +30,8 @@ int main(int argc, char** argv) {
 
 	stmt = conn.con->createStatement();
 
-	string q = "CREATE TABLE IF NOT EXISTS user(id INT PRIMARY KEY AUTO_INCREMENT NOT NULL, ";
+	string q = "CREATE TABLE IF NOT EXISTS user(";
+	q += "id INT PRIMARY KEY AUTO_INCREMENT NOT NULL, ";
 	q += "url VARCHAR(255) NOT NULL, ";
 	q += "name VARCHAR(255), ";
 	q += "games INT, ";
@@ -38,7 +41,8 @@ int main(int argc, char** argv) {
 
 	stmt->execute(q.c_str());
 
-	q = "CREATE TABLE IF NOT EXISTS game(id INT PRIMARY KEY AUTO_INCREMENT NOT NULL, ";
+	q = "CREATE TABLE IF NOT EXISTS game(";
+	q += "appid INT PRIMARY KEY NOT NULL, ";
 	q += "url VARCHAR(255), ";
 	q += "title VARCHAR(255) NOT NULL, ";
 	q += "release_date VARCHAR(255), ";
@@ -46,20 +50,22 @@ int main(int argc, char** argv) {
 	q += "genre VARCHAR(255), ";
 	q += "developer VARCHAR(255), ";
 	q += "publisher VARCHAR(255), ";
-	q += "UNIQUE(title));";
+	q += "UNIQUE(appid));";
     
 	stmt->execute(q.c_str());
 
-	q = "CREATE TABLE IF NOT EXISTS user_game (user_id INT NOT NULL, ";
+	q = "CREATE TABLE IF NOT EXISTS user_game (";
+	q += "user_id INT NOT NULL, ";
 	q += "game_id INT NOT NULL, ";
 	q += "played FLOAT, ";
 	q += "PRIMARY KEY (user_id, game_id), ";
 	q += "FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE, ";
-	q += "FOREIGN KEY (game_id) REFERENCES game(id) ON DELETE CASCADE ON UPDATE CASCADE);";
+	q += "FOREIGN KEY (game_id) REFERENCES game(appid) ON DELETE CASCADE ON UPDATE CASCADE);";
 
 	stmt->execute(q.c_str());
 
-	q = "CREATE TABLE IF NOT EXISTS friends (user_id INT NOT NULL, ";
+	q = "CREATE TABLE IF NOT EXISTS friends (";
+	q += "user_id INT NOT NULL, ";
 	q += "friend_id INT NOT NULL, ";
 	q += "PRIMARY KEY (user_id, friend_id), ";
 	q += "FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE, ";
@@ -71,55 +77,18 @@ int main(int argc, char** argv) {
 
     string seedURL;
     printf("Enter the Seed URL for Crawling\n");
+	printf("Type 'r' for Random URL Seed\n");
     cin >> seedURL;
+   //	seedURL = "r";
 	// Init Crawler
 	SteamUserCrawler userCrawler(seedURL, ip, port, id, pwd, db);
+	SteamFriendsCrawler friendCrawler(seedURL, ip, port, id, pwd, db);
+	SteamUserGameCrawler userGameCrawler(seedURL, ip, port, id, pwd, db);
     
 	// Run Crawler
-	userCrawler.run();
+//	userCrawler.run();
+//	friendCrawler.run();
+	userGameCrawler.run();
 	
 	return 0;
 }
-
-/*
-static void GumboSelector(vector<GumboNode *> &result, string selector, GumboNode *root) {
-	string temp = "";
-	for(size_t i = 0; i < selector.length(); i++) {
-		if(delimiters.find(selector[i]) != string::npos) {
-			if(temp != "") {
-				tokens.push_back(temp);
-			}
-			temp = selector[i];
-			tokens.push_back(temp);
-			temp = "";
-		} else {
-			temp += selector[i];
-		}			
-	}
-	if(temp != "") {
-		tokens.push_back(temp);
-	}
-
-	int cur = 0;
-	queue<GumboNode *> nodes;
-	nodes.push(root);
-
-	while(!nodes.empty()) {
-		GumboNode *node = nodes.front();
-		nodes.pop();
-
-		if(node->type != GUMBO_NODE_ELEMENT) {
-			return;
-		}
-
-		GumboVector *children = &node->v.element.children;
-		for(size_t i = 0; i < children->length; i++) {
-			nodes.push(static_cast<GumboNode *>(children->data[i]));
-		}
-	
-		for(size_t i = 0; i < tokens.size(); i++) {
-			cout << tokens[i] << endl;
-		}
-	}
-}
-*/

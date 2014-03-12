@@ -13,6 +13,8 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <algorithm>
+#include <vector>
 #include <queue>
 
 using namespace std;
@@ -21,6 +23,9 @@ using namespace std;
 #include <boost/algorithm/string.hpp>
 
 using namespace boost::algorithm;
+
+// rapidjson
+#include "rapidjson/document.h"
 
 #include "MySQLConnector.h"
 #include "CurlConnector.h"
