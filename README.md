@@ -7,9 +7,9 @@ Used Libraries
 - libcurl
 - gumbo-parser
 - MySQL C++ Connector
+- rapidjson
 
-Need To be fixed
+Need To be Added
 
-- Collect Games From url + "/games/?tab=all"
-- Collect Games Number From url + "/games/?tab=all"
 - Crawl Game Informations
+- Multi-Threading
