@@ -4,6 +4,9 @@
 
 using namespace std;
 
+// Boost Thread
+#include <boost/thread.hpp>
+
 #include "MySQLConnector.h"
 #include "SteamUserCrawler.h"
 #include "SteamFriendsCrawler.h"
@@ -75,36 +78,36 @@ int main(int argc, char** argv) {
 
 	delete stmt;
 
-    string seedURL;
-    printf("Enter the Seed URL for Crawling\n");
-	printf("Type 'r' for Random URL Seed\n");
-    cin >> seedURL;
-   //	seedURL = "r";
 	// Init Crawler
-	SteamUserCrawler userCrawler(seedURL, ip, port, id, pwd, db);
-	SteamFriendsCrawler friendCrawler(seedURL, ip, port, id, pwd, db);
-	SteamUserGameCrawler userGameCrawler(seedURL, ip, port, id, pwd, db);
-    
-	// Run Crawler
-	int comm;
-	while(1) {
-		cout << "Enter command (1-UserCrawler, 2-FriendsCrawler, 3-UserGameCrawler) : ";
-		cin >> comm;
+	SteamUserCrawler *userCrawler;
+	SteamFriendsCrawler *friendsCrawler;
+	SteamUserGameCrawler *userGameCrawler;
 
-		switch(comm) {
-			case 1:
-				userCrawler.run();
-				break;
-			case 2:
-				friendCrawler.run();
-				break;
-			case 3:
-				userGameCrawler.run();
-				break;
-			default:
-				cout << "Wrong Command.." << endl;
-		}
+	// Init Thread
+	boost::thread *t1;
+	boost::thread *t2;
+	boost::thread *t3;
+
+	while(1) {
+		string seedURL;
+		cout << "Enter the Seed URL for Crawling" << endl;
+		cout << "Type 'r' for Random URL Seed" << endl;
+		cin >> seedURL;
+ 
+		userCrawler = new SteamUserCrawler(seedURL, ip, port, id, pwd, db);
+		friendsCrawler = new SteamFriendsCrawler(seedURL, ip, port, id, pwd, db);
+		userGameCrawler = new SteamUserGameCrawler(seedURL, ip, port, id, pwd, db);
+	    
+		t1 = new boost::thread(boost::bind(&SteamUserCrawler::run, userCrawler));
+		t2 = new boost::thread(boost::bind(&SteamFriendsCrawler::run, friendsCrawler));
+		t3 = new boost::thread(boost::bind(&SteamUserGameCrawler::run, userGameCrawler));
+
+		t1->join();
+		t2->join();
+		t3->join();
+
+		cout << "No new things to crawl" << endl;
 	}
-	
+
 	return 0;
 }

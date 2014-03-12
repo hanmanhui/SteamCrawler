@@ -46,7 +46,7 @@ bool SteamUserGameCrawler::run() {
 		
 		gettimeofday(&start, NULL);
 		if(page != "") {
-			printf("Current URL [%s]\n", url.c_str());
+			printf("Current URL [%s]\n", userGameUrl.c_str());
 			stringstream ss(page);
 			string line;
 			int gamesCount = -1;

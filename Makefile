@@ -20,6 +20,9 @@ LDFLAGS += $(shell pkg-config --libs libcurl)
 CFLAGS += -I/usr/local/include
 LDFLAGS += -I/usr/local/include/cppconn -lmysqlcppconn
 
+# Boost
+LDFLAGS += -lboost_system -lboost_thread
+
 all : $(SRC) $(PROJECT)
 
 $(PROJECT) : $(OBJ)
