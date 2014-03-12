@@ -86,9 +86,25 @@ int main(int argc, char** argv) {
 	SteamUserGameCrawler userGameCrawler(seedURL, ip, port, id, pwd, db);
     
 	// Run Crawler
-//	userCrawler.run();
-//	friendCrawler.run();
-	userGameCrawler.run();
+	int comm;
+	while(1) {
+		cout << "Enter command (1-UserCrawler, 2-FriendsCrawler, 3-UserGameCrawler) : ";
+		cin >> comm;
+
+		switch(comm) {
+			case 1:
+				userCrawler.run();
+				break;
+			case 2:
+				friendCrawler.run();
+				break;
+			case 3:
+				userGameCrawler.run();
+				break;
+			default:
+				cout << "Wrong Command.." << endl;
+		}
+	}
 	
 	return 0;
 }

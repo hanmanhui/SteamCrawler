@@ -148,8 +148,6 @@ bool SteamUserGameCrawler::run() {
 				}
 			}
 		}
-		gettimeofday(&end, NULL);
-		printf("Saving User's Games Information Done (time consumed : %ldms)\n", this->calTime());
 
 		// Getting Next Seed Url
 		url = "";
