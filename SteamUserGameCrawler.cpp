@@ -137,7 +137,6 @@ bool SteamUserGameCrawler::run() {
 						tSS << gamesCount;
 						tSS << ") ON DUPLICATE KEY UPDATE ";
 						tSS << "games=VALUES(games);";
-						cout << "[" << tSS.str() << "]" << endl;
 						stmt->execute(tSS.str().c_str());
 						delete stmt;
 					}
