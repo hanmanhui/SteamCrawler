@@ -8,7 +8,7 @@ long SteamFriendsCrawler::calTime() {
 }
 
 bool SteamFriendsCrawler::run() {
-	printf("Started Running User Crawler\n");
+	printf("Started Running User's Friends Crawler\n");
 	
 	gettimeofday(&start, NULL);
 	// Connect To DB
