@@ -30,6 +30,36 @@ using namespace boost::algorithm;
 #include "MySQLConnector.h"
 #include "CurlConnector.h"
 
+static const int cc_size = 26;
+static const char * const cc[] = {
+	"us", 
+	"uk",
+	"au",
+	"jp", 
+	"kr",
+	"bg", 
+	"cz", 
+	"dk", 
+	"de", 
+	"fi", 
+	"fr", 
+	"gr", 
+	"nl", 
+	"hu", 
+	"it", 
+	"no", 
+	"pl", 
+	"pt", 
+	"ru", 
+	"ro", 
+	"es", 
+	"se", 
+	"tw", 
+	"tr", 
+	"cn", 
+	"ua"
+};
+
 class SteamGameCrawler {
 	public :
 		SteamGameCrawler() {

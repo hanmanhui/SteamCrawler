@@ -20,30 +20,42 @@ bool SteamGameCrawler::run() {
 	sql::ResultSet *res;
 	sql::PreparedStatement *pstmt;
 	pstmt = dbConn->con->prepareStatement("INSERT INTO game(appid, title) VALUES (?, ?) ON DUPLICATE KEY UPDATE title=VALUES(title);");
-/*
-	string page;
 
-	while(1) {
-	    gettimeofday(&start, NULL);
-		stmt = dbConn->con->createStatement();
-		res = stmt->executeQuery("SELECT appid FROM game WHERE IS NULL ORDER BY RAND() LIMIT 1;");
-		gettimeofday(&end, NULL);
-		if(res->next()) {
-			url = res->getString(1);
-			printf("Getting Random Seed URL from DB Done (time consumed : %ldms)\n", this->calTime());
-		}
-		delete stmt;
-		delete res;
-    
-		string userGameUrl = url + "/games?tab=all";
-		gettimeofday(&start, NULL);
-		page = curl->getPage(userGameUrl);
-		gettimeofday(&end, NULL);
-		printf("Getting User's Games Page Done (time consumed : %ldms)\n", this->calTime());
-		
-		gettimeofday(&start, NULL);
-		if(page != "") {
-			printf("Current URL [%s]\n", userGameUrl.c_str());
+	string page;
+	int appid = -1;
+
+    gettimeofday(&start, NULL);
+	stmt = dbConn->con->createStatement();
+	res = stmt->executeQuery("SELECT appid FROM game WHERE (release_date IS NULL OR metacritic_score IS NULL OR platforms IS NULL) ORDER BY RAND() LIMIT 1;");
+	gettimeofday(&end, NULL);
+	if(res->next()) {
+		appid = res->getInt(1);
+		printf("Getting Random appid from DB Done (time consumed : %ldms)\n", this->calTime());
+	}
+	delete stmt;
+	delete res;
+
+	while(appid != -1) {
+		stringstream appDetailsUrl;
+		appDetailsUrl << "http://store.steampowered.com/api/appdetails/?appids=";
+		appDetailsUrl << appid;
+
+		for(int cc_index = 0; cc_index < cc_size; cc_index++) {
+			string urlWithCC = appDetailsUrl.str() + "&cc=" + cc[cc_index];
+			gettimeofday(&start, NULL);
+			page = curl->getPage(urlWithCC);
+			gettimeofday(&end, NULL);
+			printf("Getting Game Information Done (time consumed : %ldms)\n", this->calTime());
+
+			gettimeofday(&start, NULL);
+			if(page.find("\"success\":true") != string::npos) {
+//				printf("Current URL [%s]\n", appDetailsUrl.str().c_str());
+//				printf("[%s]\n", page.c_str());
+				break;
+			} else {
+				printf("Not Found : %d\n", appid);
+			}
+			/*
 			stringstream ss(page);
 			string line;
 			int gamesCount = -1;
@@ -144,22 +156,23 @@ bool SteamGameCrawler::run() {
 					break;
 				}
 			}
+			*/
 		}
 
-		// Getting Next Seed Url
-		url = "";
+		// Getting Next appid 
+		appid = -1;
 		gettimeofday(&start, NULL);
 		stmt = dbConn->con->createStatement();
-		res = stmt->executeQuery("SELECT url FROM user WHERE games IS NULL ORDER BY RAND() LIMIT 1;");
+		res = stmt->executeQuery("SELECT appid FROM game WHERE (release_date IS NULL OR metacritic_score IS NULL OR platforms IS NULL) ORDER BY RAND() LIMIT 1;");
 		gettimeofday(&end, NULL);
 		if(res->next()) {
-			url = res->getString(1);
-			printf("Getting Random URL from DB Done (time consumed : %ldms)\n", this->calTime());
+			appid = res->getInt(1);
+			printf("Getting Random appid from DB Done (time consumed : %ldms)\n", this->calTime());
 		}
 		delete stmt;
 		delete res;
 	}
 	delete pstmt;
-*/
+
 	return false;
 }

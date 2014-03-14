@@ -146,7 +146,8 @@ int main(int argc, char** argv) {
 		string seedURL;
 		cout << "Enter the Seed URL for Crawling" << endl;
 		cout << "Type 'r' for Random URL Seed" << endl;
-		cin >> seedURL;
+//		cin >> seedURL;
+		seedURL = "r";
  
 		userCrawler = new SteamUserCrawler(seedURL, ip, port, id, pwd, db);
 		friendsCrawler = new SteamFriendsCrawler(seedURL, ip, port, id, pwd, db);
