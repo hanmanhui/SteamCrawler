@@ -18,6 +18,7 @@ string CurlConnector::getPage(string url) {
 	if(curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 60);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlToString);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &page);
 
