@@ -14,6 +14,7 @@ using namespace std;
 #include "SteamFriendsCrawler.h"
 #include "SteamGameCrawler.h"
 #include "SteamUserGameCrawler.h"
+#include "SteamUrlCrawler.h"
 
 int main(int argc, char** argv) {
 	if(argc != 6) {
@@ -36,6 +37,14 @@ int main(int argc, char** argv) {
 
 	stmt = conn.con->createStatement();
 
+	string q = "CREATE TABLE IF NOT EXISTS url(";
+	q += "url VARCHAR(255) PRIMARY KEY NOT NULL, ";
+	q += "timestamp TIMESTAMP);";
+
+	stmt->execute(q.c_str());
+
+	delete stmt;
+/*
 	string q = "CREATE TABLE IF NOT EXISTS user(";
 	q += "id INT PRIMARY KEY AUTO_INCREMENT NOT NULL, ";
 	q += "url VARCHAR(255) NOT NULL, ";
@@ -129,19 +138,25 @@ int main(int argc, char** argv) {
 	stmt->execute(q.c_str());
 
 	delete stmt;
-
+*/
 	// Init Crawler
 	SteamUserCrawler *userCrawler;
 	SteamFriendsCrawler *friendsCrawler;
 	SteamGameCrawler *gameCrawler;
 	SteamUserGameCrawler *userGameCrawler;
-
+	SteamUrlCrawler *urlCrawler;
+	
 	// Init Thread
 	boost::thread *t1;
 	boost::thread *t2;
 	boost::thread *t3;
 	boost::thread *t4;
+	boost::thread *t5;
 
+	urlCrawler = new SteamUrlCrawler("http://store.steampowered.com", ip, port, id, pwd, db);
+	t5 = new boost::thread(boost::bind(&SteamUrlCrawler::run, urlCrawler));
+	t5->join();
+/*
 	while(1) {
 		string seedURL;
 		cout << "Enter the Seed URL for Crawling" << endl;
@@ -166,6 +181,6 @@ int main(int argc, char** argv) {
 
 		cout << "No new things to crawl" << endl;
 	}
-
+*/
 	return 0;
 }
